@@ -11,9 +11,6 @@ TEST_SIZE = 0.3
 NUMBER_OF_SPLITS = 10
 SCORING_METHOD = 'accuracy'
 
-"""
-
-"""
 def train_knn(data,labels):
     knn = KNeighborsClassifier()
     cv = StratifiedShuffleSplit( 

@@ -11,8 +11,13 @@ clinical = clinical.fillna(0)
 
 #remove the sample labels and transform the data such that protiens are features
 protein_data = protein.iloc[:,1:].T
-gender_labels = clinical.iloc[:,1:2]
-MSI_labels = clinical.iloc[:,2:1]
 
+#extract single columns of information and convert to a list
+gender_labels = clinical['gender'].tolist()
+MSI_labels = clinical['msi'].tolist()
 
-fl.train_knn(protein_data,gender_labels)
+#combind the gender and msi columns into one
+clinical['combind'] = clinical['gender'] + clinical['msi']
+combind_labels = clinical['combind'].tolist()
+
+fl.train_knn(protein_data,combind_labels)
