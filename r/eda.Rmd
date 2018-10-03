@@ -1,0 +1,52 @@
+---
+title: "Exploratory Data Analysis"
+author: "Jonathan Dayton"
+date: "9/25/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+if (!require("pacman")) install.packages("pacman"); library(pacman)
+p_load("tidyverse")
+```
+
+## Load the data
+
+```{r, message=FALSE}
+proteomic <- read_csv("../data/tidy/train_pro.csv")
+clinical <- read_csv("../data/tidy/train_cli.csv")
+proteomic
+clinical
+```
+
+## Do we have balanced classes?
+
+Spoiler: No, we don't.
+
+```{r}
+clinical %>% ggplot(aes(gender, fill = gender)) +
+  geom_bar() +
+  facet_wrap(vars(msi))
+```
+
+## If we do a PCA, is there any obvious line of separation?
+
+If the classes cluster closely, then we could label anything that looked like it was in the wrong cluster as a mislabeling. Unfortunately, there are no obvious clusters here that align nicely with our classes.
+
+```{r}
+pca <- proteomic %>%
+  select(-sample, -TMEM35A) %>% # TMEM35A is all NAs for some reason. It wasn't deleted because it's on the X chr.
+  replace(is.na(.), 0) %>% # Replacing NAs with 0s for simplicity's sake.
+  as.matrix() %>%
+  prcomp(center = TRUE, scale. = TRUE)
+pca %>%
+  .$x %>%
+  as.tibble() %>%
+  mutate(sample = proteomic$sample) %>%
+  inner_join(clinical, by = "sample") %>%
+  ggplot(aes(PC1, PC2, shape = gender, color = msi, size = 3, alpha = 0.5)) +
+  geom_point() +
+  scale_size(guide = FALSE) +
+  scale_alpha(guide = FALSE)
+```
