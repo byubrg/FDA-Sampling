@@ -1,15 +1,15 @@
-import Learner_Functions as fl
+import learner_functions as lf
 import pandas as pd
 
 #read in the training files
-clinical = pd.read_csv('train_cli.tsv', sep='\t')
-protein = pd.read_csv('train_pro.tsv', sep='\t')
+clinical = pd.read_csv('data/raw/train_cli.tsv', sep='\t')
+protein = pd.read_csv('data/raw/train_pro.tsv', sep='\t')
 
 #impute missing values with 0
 protein = protein.fillna(0)
 clinical = clinical.fillna(0)
 
-#remove the sample labels and transform the data such that protiens are features
+#remove the sample labels and transform the data such that proteins are features
 protein_data = protein.iloc[:,1:].T
 
 #extract single columns of information and convert to a list
@@ -20,4 +20,4 @@ MSI_labels = clinical['msi'].tolist()
 clinical['combind'] = clinical['gender'] + clinical['msi']
 combind_labels = clinical['combind'].tolist()
 
-fl.train_knn(protein_data,combind_labels)
+lf.train_knn(protein_data,combind_labels)
