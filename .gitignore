@@ -1,1 +1,4 @@
 __pycache__
+*.Rproj
+.Rproj.user
+eda.html
