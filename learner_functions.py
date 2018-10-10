@@ -7,6 +7,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import cross_val_score, StratifiedShuffleSplit
 from sklearn.linear_model import SGDClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
 
 RAND_STATE = 0
 TEST_SIZE = 0.3
@@ -25,6 +26,9 @@ def train_classifier(data, labels, classifier, **kwargs):
 
 def train_rf(data, labels):
     train_classifier(data, labels, RandomForestClassifier, n_estimators=5)
+
+def train_lr(data, labels):
+    train_classifier(data, labels, LogisticRegression)
 
 def train_knn(data,labels):
     knn = KNeighborsClassifier()
