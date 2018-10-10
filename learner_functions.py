@@ -8,6 +8,7 @@ from sklearn.model_selection import cross_val_score, StratifiedShuffleSplit
 from sklearn.linear_model import SGDClassifier
 from sklearn.neighbors.nearest_centroid import NearestCentroid
 from sklearn.ensemble import BaggingClassifier
+from sklearn.ensemble import RandomForestClassifier
 
 RAND_STATE = 0
 TEST_SIZE = 0.1
@@ -28,37 +29,13 @@ def train_rf(data, labels):
     train_classifier(data, labels, RandomForestClassifier, n_estimators=5)
 
 def train_knn(data,labels):
-    knn = KNeighborsClassifier(metric='manhattan')
-    cv = StratifiedShuffleSplit(
-            n_splits = NUMBER_OF_SPLITS,
-            test_size = TEST_SIZE,
-            random_state = RAND_STATE )
-
-    scores = cross_val_score(knn, data, labels, cv = cv, scoring = SCORING_METHOD)
-    print(scores)
-
+    train_classifier(data,labels, KNeighborsClassifier)
+    
 def train_sgd(data, labels):
-
-    sgd = SGDClassifier()
-    sgd.fit(data, labels)
-
-    cv = StratifiedShuffleSplit(
-        n_splits=NUMBER_OF_SPLITS,
-        test_size=TEST_SIZE,
-        random_state=RAND_STATE)
-
-    scores = cross_val_score(sgd, data, labels, cv=cv, scoring=SCORING_METHOD)
-    print(scores)
-
+    train_classifier(data,labels, SGDClassifier)
+    
 def train_nc(data,labels):
-    nc = NearestCentroid(metric='manhattan')
-    cv = StratifiedShuffleSplit(
-            n_splits = NUMBER_OF_SPLITS,
-            test_size = TEST_SIZE,
-            random_state = RAND_STATE )
-
-    scores = cross_val_score(nc, data, labels, cv = cv, scoring = SCORING_METHOD)
-    print(scores)
+    train_classifier(data,labels, NearestCentroid)
 
 def train_bagging_knn(data,labels):
     bagging = BaggingClassifier(KNeighborsClassifier(metric='manhattan',algorithm='brute'),
