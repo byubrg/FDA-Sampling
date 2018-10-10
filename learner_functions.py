@@ -5,7 +5,7 @@ Contained in file are functions used for
 """
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import cross_val_score, StratifiedShuffleSplit
-from sklearn.linear_model import SGDClassifier
+from sklearn.linear_model import SGDClassifier, LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 
 RAND_STATE = 0
@@ -25,6 +25,9 @@ def train_classifier(data, labels, classifier, **kwargs):
 
 def train_rf(data, labels):
     train_classifier(data, labels, RandomForestClassifier, n_estimators=5)
+
+def train_lr(data, labels):
+    train_classifier(data, labels, LogisticRegression)
 
 def train_knn(data,labels):
     knn = KNeighborsClassifier()
