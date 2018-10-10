@@ -28,6 +28,9 @@ def train_classifier(data, labels, classifier, **kwargs):
 def train_rf(data, labels):
     train_classifier(data, labels, RandomForestClassifier, n_estimators=5)
 
+def train_lr(data, labels):
+    train_classifier(data, labels, LogisticRegression)
+
 def train_knn(data,labels):
     train_classifier(data,labels, KNeighborsClassifier)
     
