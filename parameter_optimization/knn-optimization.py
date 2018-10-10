@@ -28,9 +28,10 @@ clinical['combind'] = clinical['gender'] + clinical['msi']
 combind_labels = clinical['combind'].tolist()
 
 cv = StratifiedShuffleSplit( 
-n_splits = NUMBER_OF_SPLITS, 
-test_size = TEST_SIZE, 
-random_state = RAND_STATE )
+    n_splits = NUMBER_OF_SPLITS,
+    test_size = TEST_SIZE,
+    random_state = RAND_STATE
+)
 
 #-----below here is unquie to knn------ 
 
