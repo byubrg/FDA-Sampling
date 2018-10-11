@@ -47,8 +47,7 @@ def train_sgd(data, labels):
     sgd.fit(data, labels)
 
 def train_svm(data, labels):
-	SVM = svm.SVC(kernel = 'sigmoid')
-	data = preprocessing.scale(data)
+	SVM = svm.SVC(kernel = 'poly')
 	cv = StratifiedShuffleSplit(n_splits = NUMBER_OF_SPLITS, test_size = TEST_SIZE, random_state = RAND_STATE)
 	scores = cross_val_score(SVM, data, labels, cv = cv, scoring = SCORING_METHOD)
 	avg = sum(scores) / float(len(scores))
