@@ -5,6 +5,7 @@ Contained in file are functions used for
 """
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import cross_val_score, StratifiedShuffleSplit
+from sklearn import svm
 from sklearn.linear_model import SGDClassifier, LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 
@@ -44,10 +45,8 @@ def train_sgd(data, labels):
     sgd = SGDClassifier(shuffle=True)
     sgd.fit(data, labels)
 
-    cv = StratifiedShuffleSplit(
-        n_splits=NUMBER_OF_SPLITS,
-        test_size=TEST_SIZE,
-        random_state=RAND_STATE)
-
-    scores = cross_val_score(sgd, data, labels, cv=cv, scoring=SCORING_METHOD)
-    print(scores)
+def train_svm(data, labels):
+	SVM = svm.SVC(kernel = 'poly')
+	cv = StratifiedShuffleSplit(n_splits = NUMBER_OF_SPLITS, test_size = TEST_SIZE, random_state = RAND_STATE)
+	scores = cross_val_score(SVM, data, labels, cv = cv, scoring = SCORING_METHOD)
+	print(scores)
