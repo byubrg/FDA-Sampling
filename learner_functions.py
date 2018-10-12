@@ -9,6 +9,7 @@ from sklearn.linear_model import SGDClassifier
 from sklearn.neighbors.nearest_centroid import NearestCentroid
 from sklearn.ensemble import BaggingClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn import svm
 
 RAND_STATE = 0
 TEST_SIZE = 0.1
@@ -52,3 +53,7 @@ def train_bagging_knn(data,labels):
 
     scores = cross_val_score(bagging, data, labels, cv = cv, scoring = SCORING_METHOD)
     print(scores)
+
+def train_svm(data, labels):
+   train_classifier(data,labels, svm.SVC)
+
