@@ -20,4 +20,4 @@ MSI_labels = clinical['msi'].tolist()
 clinical['combind'] = clinical['gender'] + clinical['msi']
 combind_labels = clinical['combind'].tolist()
 
-lf.train_knn(protein_data,combind_labels)
+lf.train_gp(protein_data,combind_labels)

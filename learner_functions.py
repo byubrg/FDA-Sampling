@@ -7,6 +7,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import cross_val_score, StratifiedShuffleSplit
 from sklearn.linear_model import SGDClassifier, LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.gaussian_process import GaussianProcessClassifier
 
 RAND_STATE = 0
 TEST_SIZE = 0.3
@@ -51,3 +52,8 @@ def train_sgd(data, labels):
 
     scores = cross_val_score(sgd, data, labels, cv=cv, scoring=SCORING_METHOD)
     print(scores)
+
+def train_gp(data, labels):
+
+    train_classifier(data, labels, GaussianProcessClassifier)
+
