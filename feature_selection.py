@@ -1,5 +1,5 @@
 """
-Explore scikitlearn's feature selection capabilities. 
+Explore scikitlearn's feature selection capabilities.
 """
 from sklearn.feature_selection import VarianceThreshold
 from load_data import LoadData
@@ -18,6 +18,5 @@ def select_features(df, selector=VarianceThreshold, **kwargs):
 
 if __name__ == "__main__":
     data = LoadData()
-    proteomic = normalize(data.proteomic)
-    proteomic = fix_data(proteomic)
+    proteomic = fix_data(data.proteomic)
     print(select_features(proteomic, VarianceThreshold, threshold=0.125))
