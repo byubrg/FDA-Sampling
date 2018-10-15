@@ -50,3 +50,14 @@ pca %>%
   scale_size(guide = FALSE) +
   scale_alpha(guide = FALSE)
 ```
+
+
+```{r}
+proteomic %>%
+  select(-TMEM35A) %>%
+  gather(-sample, key = "Gene", value = "value") %>%
+  group_by(Gene) %>%
+  replace(is.na(.), 0) %>%
+  summarise(min = min(value), mean = mean(value), max = max(value)) %>%
+  ggplot(aes(x = mean)) + geom_histogram()
+```
