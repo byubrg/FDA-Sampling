@@ -31,7 +31,7 @@ def fix_data(df):
     bad_columns = ["TMEM35A"]
     return df.fillna(0.0).drop(bad_columns, axis="columns")
 
-def select_features(df, selector=VarianceThreshold, **kwargs):
+def _select_features(df, selector=VarianceThreshold, **kwargs):
     """Select features to be used for classification based on some
     scikit-learn feature selector.
 
@@ -50,9 +50,12 @@ def select_features(df, selector=VarianceThreshold, **kwargs):
     """
     df = normalize(df)
     feature_selector = selector(**kwargs).fit(df)
-    return df.columns[feature_selector.get_support(indices=True)]
+    return df[df.columns[feature_selector.get_support(indices=True)]]
+
+def select(df, threshold=0.125):
+    return _select_features(df, VarianceThreshold, threshold=threshold)
 
 if __name__ == "__main__":
     data = LoadData()
     proteomic = fix_data(data.proteomic)
-    print(select_features(proteomic, VarianceThreshold, threshold=0.125))
+    print(select(proteomic, threshold=0.125))
