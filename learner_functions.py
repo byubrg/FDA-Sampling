@@ -61,9 +61,7 @@ def train_svm(data, labels):
    train_classifier(data,labels, svm.SVC)
 
 def make_test_prediction(model, data, labels, print_details=True):
-    pred = model.predict(data)
-    #now check if the pred matches the 
-    
+    pred = model.predict(data)    
     if(print_details):
         print('score', accuracy_score(pred, labels))
         print('pred', pred)
