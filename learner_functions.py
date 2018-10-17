@@ -9,6 +9,9 @@ from sklearn import svm
 from sklearn.linear_model import SGDClassifier, LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import preprocessing
+from sklearn.model_selection import GridSearchCV
+import pandas as pd
+import seaborn as sns
 
 RAND_STATE = 0
 TEST_SIZE = 0.3
@@ -46,10 +49,29 @@ def train_sgd(data, labels):
     sgd = SGDClassifier(shuffle=True)
     sgd.fit(data, labels)
 
-def train_svm(data, labels):
-	SVM = svm.SVC(kernel = 'poly')
+def svm_parameters(data, labels):
+	#Kernel Poly
+	kernelScores = []
+	cValues = []
+	for i in range(10):
+		cValues.append(i)
+		SVM = svm.SVC(kernel = 'linear', gamma = "scale", C = i)
+		score = train_svm(data, labels, SVM)
+		kernelScores.append(score)
+	data = {'C': cValues, 'Scores':kernelScores}
+	df = pd.DataFrame(data)
+	ax = sns.barplot(x = 'C', y = 'Scores', data = df).set_title('Linear Kernel Optimization')
+	ax.figure.savefig('LinearKernelOptimization.png')
+
+def train_svm(data, labels, SVM):
 	cv = StratifiedShuffleSplit(n_splits = NUMBER_OF_SPLITS, test_size = TEST_SIZE, random_state = RAND_STATE)
 	scores = cross_val_score(SVM, data, labels, cv = cv, scoring = SCORING_METHOD)
 	avg = sum(scores) / float(len(scores))
-	print(scores)
-	print(avg)
+	return avg
+
+#	parameters = {'kernel':('linear', 'rbf'), 'C':[1, 10]}
+#	svc = svm.SVC(gamma="scale")
+#	clf = GridSearchCV(svc, parameters, cv=cv)
+#	clf.fit(data, labels)
+
+
