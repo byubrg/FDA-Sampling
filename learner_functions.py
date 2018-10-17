@@ -5,13 +5,12 @@ Contained in file are functions used for
 """
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import cross_val_score, StratifiedShuffleSplit
-from sklearn.linear_model import SGDClassifier
+from sklearn.linear_model import SGDClassifier, LogisticRegression
 from sklearn.neighbors.nearest_centroid import NearestCentroid
 from sklearn.ensemble import BaggingClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import svm
 from sklearn.metrics import accuracy_score, confusion_matrix
-import matplotlib.pyplot as plt
 
 RAND_STATE = 0
 TEST_SIZE = 0.1

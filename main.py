@@ -60,6 +60,4 @@ knn_gender = lf.train_knn(protein,gender_labels)
 knn_msi = lf.train_knn(protein,MSI_labels)
 
 
-lf.make_test_prediction(knn_msi,test_pro,test_MSI_labels)
-lf.make_test_prediction(knn_gender,test_pro,test_gender_labels)
 lf.generate_and_write_results(test_pro,knn_gender,knn_msi,test_gender_labels,test_MSI_labels,list(test_cli.index))
