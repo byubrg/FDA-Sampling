@@ -55,5 +55,5 @@ def train_sgd(data, labels):
 
 def train_gp(data, labels):
 
-    train_classifier(data, labels, GaussianProcessClassifier)
+    train_classifier(data, labels, GaussianProcessClassifier, n_restarts_optimizer=5)
 
