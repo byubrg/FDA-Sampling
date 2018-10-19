@@ -26,7 +26,7 @@ def train_classifier(data, labels, classifier, **kwargs):
     )
     scores = cross_val_score(model, data, labels, cv=cv, scoring=SCORING_METHOD)
     print(scores)
-    return(model.fit(data, labels))
+    return model.fit(data, labels)
     
 
 def train_rf(data, labels):
@@ -36,7 +36,7 @@ def train_lr(data, labels):
     train_classifier(data, labels, LogisticRegression)
 
 def train_knn(data,labels):
-    return(train_classifier(data,labels, KNeighborsClassifier))
+    return train_classifier(data,labels, KNeighborsClassifier)
     
 def train_sgd(data, labels):
     train_classifier(data,labels, SGDClassifier)
@@ -88,6 +88,5 @@ def generate_and_write_results(pro_data, model_gender, model_msi, gender_labels,
             outfile.write('0\n')
         else:
             outfile.write('1\n')
-        
+
     outfile.close()
-    
