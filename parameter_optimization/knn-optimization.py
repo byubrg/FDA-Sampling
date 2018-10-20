@@ -33,7 +33,7 @@ cv = StratifiedShuffleSplit(
     random_state = RAND_STATE
 )
 
-#-----below here is unquie to knn------ 
+#-----below here is unique to knn------ 
 
 #ks is the values of k that need to be evaluated for parameter optimization
 ks = [1,3,5,7,9,11,13,15,17,19,21]
