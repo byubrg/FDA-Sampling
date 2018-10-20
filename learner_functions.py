@@ -9,6 +9,7 @@ from sklearn.linear_model import SGDClassifier, LogisticRegression
 from sklearn.neighbors.nearest_centroid import NearestCentroid
 from sklearn.ensemble import BaggingClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.neural_network import MLPClassifier
 from sklearn import svm
 from sklearn.metrics import accuracy_score, confusion_matrix
 
@@ -43,6 +44,9 @@ def train_sgd(data, labels):
     
 def train_nc(data,labels):
     train_classifier(data,labels, NearestCentroid)
+    
+def train_mlp(data, labels):
+    train_classifier(data, labels, MLPClassifier, max_iter=300, solver='sgd')
 
 def train_bagging_knn(data,labels):
     bagging = BaggingClassifier(KNeighborsClassifier(metric='manhattan',algorithm='brute'),
