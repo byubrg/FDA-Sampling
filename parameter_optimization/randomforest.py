@@ -34,6 +34,7 @@ if __name__ == "__main__":
     rf = RandomForestClassifier()
     clf = GridSearchCV(rf, params)
     clf.fit(data.proteomic, pd.get_dummies(data.clinical))
-    print("Best params:", clf.best_params_)
-    print("Scores:", clf.cv_results_)
+    # print("Best params:", clf.best_params_)
+    # print("Scores:", clf.cv_results_)
+    pd.DataFrame(clf.cv_results_).to_csv("data/cool_output_stuff.csv", index=False)
 
