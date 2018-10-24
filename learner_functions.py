@@ -9,6 +9,7 @@ from sklearn.linear_model import SGDClassifier, LogisticRegression
 from sklearn.neighbors.nearest_centroid import NearestCentroid
 from sklearn.ensemble import BaggingClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.neural_network import MLPClassifier
 from sklearn import svm
 from sklearn.metrics import accuracy_score, confusion_matrix
 
@@ -26,7 +27,7 @@ def train_classifier(data, labels, classifier, **kwargs):
     )
     scores = cross_val_score(model, data, labels, cv=cv, scoring=SCORING_METHOD)
     print(scores)
-    return(model.fit(data, labels))
+    return model.fit(data, labels)
     
 
 def train_rf(data, labels):
@@ -36,13 +37,17 @@ def train_lr(data, labels):
     return(train_classifier(data, labels, LogisticRegression))
 
 def train_knn(data,labels):
-    return(train_classifier(data,labels, KNeighborsClassifier))
+    return train_classifier(data,labels, KNeighborsClassifier)
     
 def train_sgd(data, labels):
     return(train_classifier(data,labels, SGDClassifier))
     
 def train_nc(data,labels):
     return(train_classifier(data,labels, NearestCentroid))
+    
+def train_mlp(data, labels):
+    return(train_classifier(data, labels, MLPClassifier, max_iter=300, solver='sgd'))
+
 
 def train_bagging_knn(data,labels):
     bagging = BaggingClassifier(KNeighborsClassifier(metric='manhattan',algorithm='brute'),
@@ -88,6 +93,5 @@ def generate_and_write_results(pro_data, model_gender, model_msi, gender_labels,
             outfile.write('0\n')
         else:
             outfile.write('1\n')
-        
+
     outfile.close()
-    
