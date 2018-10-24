@@ -23,6 +23,8 @@ class LoadData(object):
                 {'data/tidy/train_pro.csv'})
             mismatch_path {str} -- The path to the mismatch data.
                 (default: {'data/tidy/sum_tab_1.csv'})
+            test_proteomic_path {str}
+            test_clinical_path {str}
         """
         self.clinical = pd.read_csv(clinical_path, index_col=0)
         self.proteomic = pd.read_csv(proteomic_path, index_col=0)
@@ -33,7 +35,7 @@ class LoadData(object):
         self.test_proteomic = self.fix_data(self.test_proteomic)
         self.test_proteomic = self.normalize(self.test_proteomic)
         self.test_clinical = pd.read_csv(test_clinical_path, index_col=0, sep='\t')
-        
+
 
     def normalize(self, df):
         """Normalize each column into roughly [-1.0, 1.0] centered around 0.0.
