@@ -10,7 +10,9 @@ class LoadData(object):
     def __init__(self,
                  clinical_path='data/tidy/train_cli.csv',
                  proteomic_path='data/tidy/train_pro.csv',
-                 mismatch_path='data/tidy/sum_tab_1.csv'):
+                 mismatch_path='data/tidy/sum_tab_1.csv',
+                 test_proteomic_path='data/raw/test_pro.tsv',
+                 test_clinical_path='data/raw/test_cli.tsv'):
         """Load the training data into pandas DataFrames.
 
         Keyword Arguments:
@@ -27,6 +29,11 @@ class LoadData(object):
         self.proteomic = self.fix_data(self.proteomic)
         self.proteomic = self.normalize(self.proteomic)
         self.mismatch = pd.read_csv(mismatch_path, index_col=0)
+        self.test_proteomic = pd.read_csv(test_proteomic_path, index_col=0, sep='\t').T
+        self.test_proteomic = self.fix_data(self.test_proteomic)
+        self.test_proteomic = self.normalize(self.test_proteomic)
+        self.test_clinical = pd.read_csv(test_clinical_path, index_col=0, sep='\t')
+        
 
     def normalize(self, df):
         """Normalize each column into roughly [-1.0, 1.0] centered around 0.0.
