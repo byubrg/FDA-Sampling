@@ -10,15 +10,15 @@ test_gender_labels = data.test_clinical['gender'].tolist()
 test_MSI_labels = data.test_clinical['msi'].tolist()
 
 #train learners for gender and msi here:
-knn_gender = lf.train_knn(data.proteomic.iloc[:,1:],gender_labels)
-knn_msi = lf.train_knn(data.proteomic.iloc[:,1:],MSI_labels)
-lr_gender = lf.train_lr(data.proteomic.iloc[:,1:],gender_labels)
-lr_msi = lf.train_lr(data.proteomic.iloc[:,1:],MSI_labels)
+knn_gender = lf.train_knn(data.proteomic,gender_labels)
+knn_msi = lf.train_knn(data.proteomic,MSI_labels)
+lr_gender = lf.train_lr(data.proteomic,gender_labels)
+lr_msi = lf.train_lr(data.proteomic,MSI_labels)
 
 
 
 #make final predictions here, give it the two trained classifiers
-lf.generate_and_write_results(data.test_proteomic.fillna(0.0).iloc[:,1:],
+lf.generate_and_write_results(data.test_proteomic.fillna(0.0),
                               knn_gender,
                               knn_msi,
                               test_gender_labels,
