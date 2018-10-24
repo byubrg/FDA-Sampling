@@ -30,19 +30,19 @@ def train_classifier(data, labels, classifier, **kwargs):
     
 
 def train_rf(data, labels):
-    train_classifier(data, labels, RandomForestClassifier, n_estimators=5)
+    return(train_classifier(data, labels, RandomForestClassifier, n_estimators=5))
 
 def train_lr(data, labels):
-    train_classifier(data, labels, LogisticRegression)
+    return(train_classifier(data, labels, LogisticRegression))
 
 def train_knn(data,labels):
     return(train_classifier(data,labels, KNeighborsClassifier))
     
 def train_sgd(data, labels):
-    train_classifier(data,labels, SGDClassifier)
+    return(train_classifier(data,labels, SGDClassifier))
     
 def train_nc(data,labels):
-    train_classifier(data,labels, NearestCentroid)
+    return(train_classifier(data,labels, NearestCentroid))
 
 def train_bagging_knn(data,labels):
     bagging = BaggingClassifier(KNeighborsClassifier(metric='manhattan',algorithm='brute'),
@@ -58,7 +58,7 @@ def train_bagging_knn(data,labels):
     print(scores)
 
 def train_svm(data, labels):
-   train_classifier(data,labels, svm.SVC)
+   return(train_classifier(data,labels, svm.SVC))
 
 def make_test_prediction(model, data, labels, print_details=True):
     pred = model.predict(data)    
