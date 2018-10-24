@@ -26,8 +26,9 @@ def train_classifier(data, labels, classifier, **kwargs):
         random_state=RAND_STATE
     )
     scores = cross_val_score(model, data, labels, cv=cv, scoring=SCORING_METHOD)
-    print(scores)
-    return model.fit(data, labels)
+    print( sum(scores) / len(scores))
+    score = sum(scores) / len(scores)
+    return model.fit(data, labels), score
 
 
 def train_rf(data, labels):
