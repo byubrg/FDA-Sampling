@@ -10,6 +10,8 @@ from sklearn.neighbors.nearest_centroid import NearestCentroid
 from sklearn.ensemble import BaggingClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import svm
+import pandas as pd
+import seaborn as sns
 
 RAND_STATE = 0
 TEST_SIZE = 0.1
@@ -33,7 +35,8 @@ def svmParameters(data, labels):
 	for i in range(10):
 		cValues.append(i)
 		SVM = svm.SVC(kernel = 'linear', gamma = 'scale', C = 'i')
-		score = train_classifier(data, labels, SVM)
+		score = train_classifier(data, labels, svm.SVC)
+#(kernel = 'linear', gamma = 'scale', C = 'i'))
 		kernelScores.append(score)
 	data = {'C': cValues, 'Scores':kernelScores}
 	df = pd.DataFrame(data)
