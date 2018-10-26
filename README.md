@@ -51,3 +51,15 @@ def train_knn(data,labels):
 ### `main.py`
 
 This is the main script for executing the analysis and algorithm. It is from this file that learner_functions should be used.
+
+## Feature Selection
+
+To perform feature selection:
+
+```python
+import feature_selection
+from load_data import LoadData
+
+data = LoadData()
+selected_features = feature_selection.select(data)
+```
