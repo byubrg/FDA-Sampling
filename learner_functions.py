@@ -1,21 +1,19 @@
 """
-Contained in file are functions used for 
+Contained in file are functions used for
     - training scikit learn classifiers
     - making prediction with each algorithm
 """
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import cross_val_score, StratifiedShuffleSplit
-from sklearn import svm
-from sklearn.linear_model import SGDClassifier, LogisticRegression
+from sklearn.linear_model import SGDClassifier
+from sklearn.neighbors.nearest_centroid import NearestCentroid
+from sklearn.ensemble import BaggingClassifier
 from sklearn.ensemble import RandomForestClassifier
-from sklearn import preprocessing
-from sklearn.model_selection import GridSearchCV
-import pandas as pd
-import seaborn as sns
+from sklearn import svm
 
 RAND_STATE = 0
-TEST_SIZE = 0.3
-NUMBER_OF_SPLITS = 10
+TEST_SIZE = 0.1
+NUMBER_OF_SPLITS = 100
 SCORING_METHOD = 'accuracy'
 
 def train_classifier(data, labels, classifier, **kwargs):
@@ -35,43 +33,27 @@ def train_lr(data, labels):
     train_classifier(data, labels, LogisticRegression)
 
 def train_knn(data,labels):
-    knn = KNeighborsClassifier()
-    cv = StratifiedShuffleSplit( 
-            n_splits = NUMBER_OF_SPLITS, 
-            test_size = TEST_SIZE, 
-            random_state = RAND_STATE )
-    
-    scores = cross_val_score(knn, data, labels, cv = cv, scoring = SCORING_METHOD)
-    print(scores)
+    train_classifier(data,labels, KNeighborsClassifier)
     
 def train_sgd(data, labels):
+    train_classifier(data,labels, SGDClassifier)
+    
+def train_nc(data,labels):
+    train_classifier(data,labels, NearestCentroid)
 
-    sgd = SGDClassifier(shuffle=True)
-    sgd.fit(data, labels)
+def train_bagging_knn(data,labels):
+    bagging = BaggingClassifier(KNeighborsClassifier(metric='manhattan',algorithm='brute'),
+                                n_estimators=30,
+                                max_samples=0.25,
+                                max_features=0.25,
+                                warm_start=True)
+    cv = StratifiedShuffleSplit(
+        n_splits = NUMBER_OF_SPLITS,
+        test_size = TEST_SIZE)
 
-def svm_parameters(data, labels):
-	#Kernel Poly
-	kernelScores = []
-	cValues = []
-	for i in range(10):
-		cValues.append(i)
-		SVM = svm.SVC(kernel = 'linear', gamma = "scale", C = i)
-		score = train_svm(data, labels, SVM)
-		kernelScores.append(score)
-	data = {'C': cValues, 'Scores':kernelScores}
-	df = pd.DataFrame(data)
-	ax = sns.barplot(x = 'C', y = 'Scores', data = df).set_title('Linear Kernel Optimization')
-	ax.figure.savefig('LinearKernelOptimization.png')
+    scores = cross_val_score(bagging, data, labels, cv = cv, scoring = SCORING_METHOD)
+    print(scores)
 
-def train_svm(data, labels, SVM):
-	cv = StratifiedShuffleSplit(n_splits = NUMBER_OF_SPLITS, test_size = TEST_SIZE, random_state = RAND_STATE)
-	scores = cross_val_score(SVM, data, labels, cv = cv, scoring = SCORING_METHOD)
-	avg = sum(scores) / float(len(scores))
-	return avg
-
-#	parameters = {'kernel':('linear', 'rbf'), 'C':[1, 10]}
-#	svc = svm.SVC(gamma="scale")
-#	clf = GridSearchCV(svc, parameters, cv=cv)
-#	clf.fit(data, labels)
-
+def train_svm(data, labels):
+   train_classifier(data,labels, svm.SVC)
 
