@@ -1,5 +1,6 @@
 import learner_functions as lf
 import load_data as ld
+import feature_selection as fs
 
 data = ld.LoadData()
 
@@ -20,8 +21,17 @@ rf_params = { # Found by parameter optimization in randomforest.py
     "min_samples_split": 5,
     "n_estimators": 100
 }
-rf_gender, rf_gender_score = lf.train_rf(data.proteomic, gender_labels, **rf_params)
-rf_msi, rf_msi_score = lf.train_rf(data.proteomic, MSI_labels, **rf_params)
+#change data.proteomic to most important features
+rf_gender, rf_gender_score = lf.train_rf(
+    fs.univariate(data.proteomic, gender_labels),
+    gender_labels,
+    **rf_params
+)
+rf_msi, rf_msi_score = lf.train_rf(
+    fs.univariate(data.proteomic, MSI_labels),
+    MSI_labels,
+    **rf_params
+)
 
 #make final predictions here, give it the two trained classifiers
 lf.generate_and_write_results(data.test_proteomic.fillna(0.0),

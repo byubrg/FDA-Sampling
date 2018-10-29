@@ -4,6 +4,8 @@ Explore scikitlearn's feature selection capabilities.
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_selection import VarianceThreshold, SelectKBest, f_classif, SelectFdr, SelectFpr, RFECV, RFE
 from load_data import LoadData
+import pandas as pd
+
 def _select_features(df, selector=VarianceThreshold, **kwargs):
     """Select features to be used for classification based on some
     scikit-learn feature selector.
@@ -38,7 +40,7 @@ def elimination(features, labels, classifier, eliminator=RFE, **kwargs):
     return _supported_cols(features, selected)
 
 def _squash_columns(labels):
-    return labels.apply(lambda x: ",".join(x.fillna("none").astype(str)), axis=1)
+    return pd.DataFrame(labels).apply(lambda x: ",".join(x.fillna("none").astype(str)), axis=1)
 
 def _supported_cols(features, selected):
     return features[features.columns[selected.get_support(indices=True)]]
