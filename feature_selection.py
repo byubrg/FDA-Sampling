@@ -28,17 +28,17 @@ def variance(df, threshold=0.125):
     return _select_features(df, VarianceThreshold, threshold=threshold)
 
 def univariate(features, labels, method=SelectKBest, metric=f_classif, **kwargs):
-    labels = _squash_labels(labels)
+    labels = _squash_columns(labels)
     selected = method(metric, **kwargs).fit(features, labels)
     return _supported_cols(features, selected)
 
 def elimination(features, labels, classifier, eliminator=RFE, **kwargs):
-    labels = _squash_labels(labels)
+    labels = _squash_columns(labels)
     selected = eliminator(classifier, **kwargs).fit(features, labels)
     return _supported_cols(features, selected)
 
-def _squash_labels(labels):
-    return labels['gender'] + labels['msi']
+def _squash_columns(labels):
+    return labels.apply(lambda x: ",".join(x.fillna("none").astype(str)), axis=1)
 
 def _supported_cols(features, selected):
     return features[features.columns[selected.get_support(indices=True)]]
