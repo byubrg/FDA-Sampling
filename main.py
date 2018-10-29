@@ -14,8 +14,14 @@ knn_gender, knn_gender_score = lf.train_knn(data.proteomic,gender_labels)
 knn_msi, knn_msi_score = lf.train_knn(data.proteomic,MSI_labels)
 lr_gender, lr_gender_score = lf.train_lr(data.proteomic,gender_labels)
 lr_msi, lr_msi_score = lf.train_lr(data.proteomic,MSI_labels)
-
-
+rf_params = { # Found by parameter optimization in randomforest.py
+    "criterion": 'gini', 
+    "min_samples_leaf": 1, 
+    "min_samples_split": 5,
+    "n_estimators": 100
+}
+rf_gender, rf_gender_score = lf.train_rf(data.proteomic, gender_labels, **rf_params)
+rf_msi, rf_msi_score = lf.train_rf(data.proteomic, MSI_labels, **rf_params)
 
 #make final predictions here, give it the two trained classifiers
 lf.generate_and_write_results(data.test_proteomic.fillna(0.0),
