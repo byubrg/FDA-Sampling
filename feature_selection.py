@@ -22,18 +22,27 @@ def _select_features(df, selector=VarianceThreshold, **kwargs):
             input DataFrame).
     """
     feature_selector = selector(**kwargs).fit(df)
-    return df[df.columns[feature_selector.get_support(indices=True)]]
+    return _supported_cols(df, feature_selector)
 
-def select(df, threshold=0.125):
+def variance(df, threshold=0.125):
     return _select_features(df, VarianceThreshold, threshold=threshold)
+
+def univariate(features, labels, method=SelectKBest, metric=f_classif, **kwargs):
+    labels = _squash_labels(labels)
+    selected = method(metric, **kwargs).fit(features, labels)
+    return _supported_cols(features, selected)
+
+def elimination(features, labels, classifier, eliminator=RFE, **kwargs):
+    labels = _squash_labels(labels)
+    selected = eliminator(classifier, **kwargs).fit(features, labels)
+    return _supported_cols(features, selected)
+
+def _squash_labels(labels):
+    return labels['gender'] + labels['msi']
+
+def _supported_cols(features, selected):
+    return features[features.columns[selected.get_support(indices=True)]]
 
 if __name__ == "__main__":
     data = LoadData()
-    #print(select(data.proteomic, threshold=0.125))
-    #selected = SelectKBest(f_classif, k=10).fit(data.proteomic, data.clinical["gender"]+data.clinical["msi"])
-    #selected = SelectFdr(f_classif).fit(data.proteomic, data.clinical["gender"]+data.clinical["msi"])
-    #selected = SelectFpr(f_classif, alpha=0.01).fit(data.proteomic, data.clinical["gender"]+data.clinical["msi"])
-    #selected = RFECV(RandomForestClassifier(), step=0.2).fit(data.proteomic, data.clinical["gender"]+data.clinical["msi"])
-    selected = RFE(RandomForestClassifier(), n_features_to_select=15).fit(data.proteomic, data.clinical["gender"]+data.clinical["msi"])
-    df = data.proteomic
-    print(df[df.columns[selected.get_support(indices=True)]])
+    print(elimination(data.proteomic, data.clinical, RandomForestClassifier()))
