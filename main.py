@@ -51,13 +51,13 @@ print(hvMSI)
 print("******************************************************************")
 
 # Soft Voting
-print("\n\n******************************************************************\n)
+print("\n\n******************************************************************\n")
 print("SOFT VOTE FOR GENDERS")
 gender_estimators = [('knn', knn_gender), ('lr', lr_gender), ('rf', rf_gender), ('sgd', sgd_gender), ('nc', nc_gender), ('mlp', mlp_gender)]
 sv_gender = sv.soft_vote(gender_estimators, data.proteomic, gender_labels)
 print("******************************************************************")
 
-print("\n\n******************************************************************\n)
+print("\n\n******************************************************************\n")
 print("SOFT VOTE FOR MSI")
 msi_estimators = [('knn', knn_msi), ('lr', lr_msi), ('rf', rf_msi), ('sgd', sgd_msi), ('nc', nc_msi), ('mlp', mlp_msi)]
 sv_msi = sv.soft_vote(msi_estimators, data.proteomic, MSI_labels)
