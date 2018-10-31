@@ -38,7 +38,7 @@ cv = StratifiedShuffleSplit(
 #-----below here is unquie to knn------ 
 
 #ks is the values of k that need to be evaluated for parameter optimization
-mi = range(1, 100)
+mi = range(15, 30)
 
 #final_scores is being initialized as a list that will contain the mean scores for each value of k
 final_scores = []
@@ -65,5 +65,5 @@ df = pd.DataFrame(data)
 ax = sns.barplot(x="i", y="score", data=df).set_title('GPC kernval Parameter')
 
 #save the plot
-ax.figure.savefig("gpc-kernvalue-1-100-optimization-plot.png")
+ax.figure.savefig("gpc-kernvalue-15-30-optimization-plot.png")
 
