@@ -32,8 +32,8 @@ def train_classifier(data, labels, classifier, **kwargs):
     return model.fit(data, labels), score
 
 
-def train_rf(data, labels):
-    return train_classifier(data, labels, RandomForestClassifier, n_estimators=5)
+def train_rf(data, labels, **kwargs):
+    return train_classifier(data, labels, RandomForestClassifier, **kwargs)
 
 def train_lr(data, labels):
     return train_classifier(data, labels, LogisticRegression)
