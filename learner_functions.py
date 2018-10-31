@@ -42,7 +42,7 @@ def train_knn(data,labels):
     return train_classifier(data,labels, KNeighborsClassifier)
 
 def train_sgd(data, labels):
-    return train_classifier(data,labels, SGDClassifier)
+    return train_classifier(data,labels, SGDClassifier, max_iter=25)
 
 def train_sgd_mod(data, labels):
     return train_classifier(data,labels, SGDClassifier, loss='modified_huber')
