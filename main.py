@@ -1,48 +1,93 @@
 import learner_functions as lf
-import pandas as pd
+import load_data as ld
+import feature_selection as fs
+import hard_vote as hv
+import soft_vote as sv
 
-#read in the training files
-clinical = pd.read_csv('data/raw/train_cli.tsv', sep='\t')
-protein = pd.read_csv('data/raw/train_pro.tsv', sep='\t').T
-labels = pd.read_csv('data/tidy/sum_tab_1.csv', sep=',')
 
-#create the labels for which samples have been mislabeled
-mismatch_labels = labels.mismatch.tolist()
+data = ld.LoadData()
 
-#make the row names of clinical data equal to the first column's content
-clinical.index = clinical['sample'].tolist()
+#create test and train labels
+gender_labels = data.clinical['gender'].tolist()
+MSI_labels = data.clinical['msi'].tolist()
+test_gender_labels = data.test_clinical['gender'].tolist()
+test_MSI_labels = data.test_clinical['msi'].tolist()
 
-#remove the first column
-clinical = clinical.iloc[:,1:]
+#train learners for gender and msi here:
+knn_gender, knn_gender_score = lf.train_knn(data.proteomic,gender_labels)
+knn_msi, knn_msi_score = lf.train_knn(data.proteomic,MSI_labels)
+lr_gender, lr_gender_score = lf.train_lr(data.proteomic,gender_labels)
+lr_msi, lr_msi_score = lf.train_lr(data.proteomic,MSI_labels)
 
-#create column headers for protein data
-protein.columns = protein.iloc[0]
-protein = protein.iloc[1:]
+rf_params = { # Found by parameter optimization in randomforest.py
+    "criterion": 'gini', 
+    "min_samples_leaf": 1, 
+    "min_samples_split": 5,
+    "n_estimators": 100
+}
+#change data.proteomic to most important features
+rf_gender, rf_gender_score = lf.train_rf(
+    fs.univariate(data.proteomic, gender_labels),
+    gender_labels,
+    **rf_params
+)
+rf_msi, rf_msi_score = lf.train_rf(
+    fs.univariate(data.proteomic, MSI_labels),
+    MSI_labels,
+    **rf_params
+)
 
-#impute missing values with 0
-protein = protein.fillna(0)
-clinical = clinical.fillna(0)
+rf_gender, rf_gender_score = lf.train_rf(data.proteomic,gender_labels)
+rf_msi, rf_msi_score = lf.train_rf(data.proteomic,MSI_labels)
+sgd_gender, sgd_gender_score = lf.train_sgd(data.proteomic,gender_labels)
+sgd_msi, sgd_msi_score = lf.train_sgd(data.proteomic,MSI_labels)
+nc_gender, nc_gender_score = lf.train_nc(data.proteomic,gender_labels)
+nc_msi, nc_msi_score = lf.train_nc(data.proteomic,MSI_labels)
+mlp_gender, mlp_gender_score = lf.train_mlp(data.proteomic,gender_labels)
+mlp_msi, mlp_msi_score = lf.train_mlp(data.proteomic,MSI_labels)
 
-#combined the clinical and the protein data
-joint_data = protein.combine_first(clinical)
+#make final predictions here, give it the two trained classifiers
+lf.generate_and_write_results(data.test_proteomic.fillna(0.0),
+                              knn_gender,
+                              knn_msi,
+                              test_gender_labels,
+                              test_MSI_labels,
+                              list(data.test_proteomic.index))
 
-#replace the nominal values from the clinical set with continuous values
-joint_data = joint_data.replace('MSI-Low/MSS',0)
-joint_data = joint_data.replace('MSI-High',1)
-joint_data = joint_data.replace('Male',1)
-joint_data = joint_data.replace('Female',0)
 
-#extract single columns of information and convert to a list
-gender_labels = clinical['gender'].tolist()
-MSI_labels = clinical['msi'].tolist()
+#Not sure if this should be here in the main.
 
-#combined the gender and msi columns into one
-clinical['combined'] = clinical['gender'] + clinical['msi']
-combined_labels = clinical['combined'].tolist()
+#All of the other models that are not being trained here for gender right now should be added to this array.
+modelArrayGen = [knn_gender, lr_gender, rf_gender, sgd_gender, nc_gender, mlp_gender]
+print("\n\n******************************************************************\nHARD VOTE FOR GENDERS")
+hvGender = hv.hard_vote(modelArrayGen, data.proteomic, gender_labels, 'gender')
+print(hvGender)
+print("******************************************************************")
 
-lf.train_rf(joint_data,mismatch_labels)
-lf.train_knn(joint_data,mismatch_labels)
-lf.train_sgd(joint_data,mismatch_labels)
-lf.train_nc(joint_data,mismatch_labels)
-lf.train_bagging_knn(joint_data,mismatch_labels)
-lf.train_svm(protein_data,combind_labels)
+# #All of the other models that are not being trained here for msi right now should be added to this array.
+print("\n\n******************************************************************\nHARD VOTE FOR MSI")
+modelArrayMSI = [knn_msi, lr_msi, rf_msi, sgd_msi, nc_msi, mlp_msi]
+hvMSI = hv.hard_vote(modelArrayMSI, data.proteomic, lr_msi, 'msi')
+print(hvMSI)
+print("******************************************************************")
+
+
+# Soft Voting
+
+# NC does not have a 'predict_proba' attribute (i.e. no probability estimates)
+# Probability estimates are not available for hinge loss in SGD. See learner_functions for a modified SGD trainer function.
+sgd_gender_mod, sgd_gender_score_mod = lf.train_sgd_mod(data.proteomic,gender_labels)
+sgd_msi_mod, sgd_msi_score_mod = lf.train_sgd_mod(data.proteomic,MSI_labels)
+
+
+print("\n\n******************************************************************")
+print("SOFT VOTE FOR GENDERS")
+gender_estimators = [('knn', knn_gender), ('lr', lr_gender), ('rf', rf_gender), ('sgd', sgd_gender_mod), ('mlp', mlp_gender)]
+sv_gender = sv.soft_vote(gender_estimators, data.proteomic, gender_labels)
+print("******************************************************************")
+
+print("\n\n******************************************************************")
+print("SOFT VOTE FOR MSI")
+msi_estimators = [('knn', knn_msi), ('lr', lr_msi), ('rf', rf_msi), ('sgd', sgd_msi_mod), ('mlp', mlp_msi)]
+sv_msi = sv.soft_vote(msi_estimators, data.proteomic, MSI_labels)
+print("******************************************************************")

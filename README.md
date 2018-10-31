@@ -51,3 +51,23 @@ def train_knn(data,labels):
 ### `main.py`
 
 This is the main script for executing the analysis and algorithm. It is from this file that learner_functions should be used.
+
+## Feature Selection
+
+There are three types of feature selection implemented:
+
+* [Variance Threshold](http://scikit-learn.org/stable/modules/feature_selection.html#removing-features-with-low-variance) - Remove features with low variance.
+* [Univariate Feature Selection](http://scikit-learn.org/stable/modules/feature_selection.html#univariate-feature-selection) - Select the best features based on some metric. Default is `SelectKBest`, which gets the k features that classify with the highest score (default is accuracy).
+* [Recursive Feature Elimination](http://scikit-learn.org/stable/modules/feature_selection.html#univariate-feature-selection) - Recursively eliminate features that look less important after classification.
+
+```python
+import feature_selection
+from load_data import LoadData
+from sklearn.svm import SVC
+
+data = LoadData()
+
+var_threshold = feature_selection.variance(data.proteomic, threshold=0.125)
+k_best = feature_selection.univariate(data.proteomic, data.clinical, method=SelectKBest)
+feature_elim = feature_selection.elimination(data.proteomic, data.clinical, SVC(), eliminator=RFE, n_features_to_select=15)
+```
