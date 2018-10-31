@@ -38,8 +38,8 @@ def train_rf(data, labels, **kwargs):
 def train_lr(data, labels):
     return train_classifier(data, labels, LogisticRegression)
 
-def train_knn(data,labels):
-    return train_classifier(data,labels, KNeighborsClassifier)
+def train_knn(data,labels, **kwargs):
+    return train_classifier(data,labels, KNeighborsClassifier, **kwargs)
 
 def train_sgd(data, labels):
     return train_classifier(data,labels, SGDClassifier)

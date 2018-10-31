@@ -13,12 +13,16 @@ MSI_labels = data.clinical['msi'].tolist()
 test_gender_labels = data.test_clinical['gender'].tolist()
 test_MSI_labels = data.test_clinical['msi'].tolist()
 
+knn_params = { # Found by parameter optimization in knn-optimization.py
+    "n_neighbors": 11
+}
+
 #train learners for gender and msi here:
-knn_gender, knn_gender_score = lf.train_knn(data.proteomic,gender_labels)
-knn_msi, knn_msi_score = lf.train_knn(data.proteomic,MSI_labels)
+knn_gender, knn_gender_score = lf.train_knn(data.proteomic,gender_labels, **knn_params)
+knn_msi, knn_msi_score = lf.train_knn(data.proteomic,MSI_labels, **knn_params)
 lr_gender, lr_gender_score = lf.train_lr(data.proteomic,gender_labels)
 lr_msi, lr_msi_score = lf.train_lr(data.proteomic,MSI_labels)
-
+quit()
 rf_params = { # Found by parameter optimization in randomforest.py
     "criterion": 'gini', 
     "min_samples_leaf": 1, 
