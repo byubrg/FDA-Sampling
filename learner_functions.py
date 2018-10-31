@@ -13,6 +13,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn import svm
 from sklearn.metrics import accuracy_score, confusion_matrix
+import hard_vote as hv
 
 RAND_STATE = 0
 TEST_SIZE = 0.1
@@ -47,8 +48,8 @@ def train_sgd(data, labels):
 def train_sgd_mod(data, labels):
     return train_classifier(data,labels, SGDClassifier, loss='modified_huber')
 
-def train_nc(data,labels):
-    return train_classifier(data,labels, NearestCentroid)
+def train_nc(data,labels,**kwargs):
+    return train_classifier(data,labels, NearestCentroid,**kwargs)
 
 def train_mlp(data, labels):
     return train_classifier(data, labels, MLPClassifier, max_iter=300, solver='sgd')
@@ -67,8 +68,8 @@ def train_bagging_knn(data,labels):
     scores = cross_val_score(bagging, data, labels, cv = cv, scoring = SCORING_METHOD)
     print(scores)
 
-def train_svm(data, labels):
-   return train_classifier(data,labels, svm.SVC)
+def train_svm(data, labels,**kwargs):
+   return train_classifier(data,labels, svm.SVC,**kwargs)
 
 def make_test_prediction(model, data, labels, print_details=True):
     pred = model.predict(data)
@@ -99,4 +100,28 @@ def generate_and_write_results(pro_data, model_gender, model_msi, gender_labels,
         else:
             outfile.write('1\n')
 
+    outfile.close()
+
+
+def generate_and_write_results_hard_voting(pro_data, model_gender, model_msi, gender_labels, msi_labels, sample_names, strict=True):
+    gender_predictions = hv.hard_vote(model_gender, pro_data, gender_labels, 'gender')
+
+    msi_predictions = hv.hard_vote(model_msi, pro_data, msi_labels, 'msi')
+    outfile = open('subchallenge_1.csv','w')
+    outfile.write('sample,mismatch\n')
+
+    if strict:
+        for i in range(0,len(msi_labels)):
+            outfile.write(sample_names[i] + ',')
+            if gender_labels[i] == gender_predictions[i] and msi_labels[i] == msi_predictions[i]:
+                outfile.write('0\n')
+            else:
+                outfile.write('1\n')
+    else:
+        for i in range(0, len(msi_labels)):
+            outfile.write(sample_names[i] + ',')
+            if gender_labels[i] != gender_predictions[i] and msi_labels[i] != msi_predictions[i]:
+                outfile.write('1\n')
+            else:
+                outfile.write('0\n')
     outfile.close()
