@@ -10,6 +10,7 @@ from sklearn.neighbors.nearest_centroid import NearestCentroid
 from sklearn.ensemble import BaggingClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
+from sklearn.calibration import CalibratedClassifierCV
 from sklearn import svm
 from sklearn.metrics import accuracy_score, confusion_matrix
 
@@ -42,6 +43,10 @@ def train_knn(data,labels):
 
 def train_sgd(data, labels):
     return train_classifier(data,labels, SGDClassifier)
+
+def train_calibrated_sgd(data, labels):
+    sgd = SGDClassifier()
+    return train_classifier(data,labels, CalibratedClassifierCV, base_estimator=sgd, cv=5, method='sigmoid')
 
 def train_nc(data,labels):
     return train_classifier(data,labels, NearestCentroid)
