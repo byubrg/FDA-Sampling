@@ -38,14 +38,15 @@ cv = StratifiedShuffleSplit(
 #-----below here is unquie to knn------ 
 
 #ks is the values of k that need to be evaluated for parameter optimization
-mi = [1]
+mi = range(1, 100)
 
 #final_scores is being initialized as a list that will contain the mean scores for each value of k
 final_scores = []
 
 #loop over the various values of k that need to be tested
 for i in mi:
-    gpc = GaussianProcessClassifier(n_jobs=i)
+    kernval = i * RBF(i)
+    gpc = GaussianProcessClassifier(kernel=kernval)
     scores = cross_val_score(gpc, protein_data, combind_labels, cv = cv, scoring = SCORING_METHOD)
 
     #get the mean of the scores for this iteration of the algorithsm
@@ -61,8 +62,8 @@ data = {'i':mi,'score':final_scores}
 df = pd.DataFrame(data)
 
 #create the plot and label the plot
-ax = sns.barplot(x="i", y="score", data=df).set_title('GPC n_jobs Parameter')
+ax = sns.barplot(x="i", y="score", data=df).set_title('GPC kernval Parameter')
 
 #save the plot
-ax.figure.savefig("gpc-n-jobs-optimization-plot.png")
+ax.figure.savefig("gpc-kernvalue-1-100-optimization-plot.png")
 
