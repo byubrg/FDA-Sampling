@@ -43,7 +43,7 @@ hvGender = hv.hard_vote(modelArrayGen, data.proteomic, gender_labels, 'gender')
 print(hvGender)
 print("******************************************************************")
 
-#All of the other models that are not being trained here for msi right now should be added to this array.
+# #All of the other models that are not being trained here for msi right now should be added to this array.
 print("\n\n******************************************************************\nHARD VOTE FOR MSI")
 modelArrayMSI = [knn_msi, lr_msi, rf_msi, sgd_msi, nc_msi, mlp_msi]
 hvMSI = hv.hard_vote(modelArrayMSI, data.proteomic, lr_msi, 'msi')
@@ -54,18 +54,19 @@ print("******************************************************************")
 # Soft Voting
 
 # NC does not have a 'predict_proba' attribute (i.e. no probability estimates)
-# Probability estimates are not available for hinge loss in SGD. See learner_functions for calibrated SGD.
-sgd_gender_cal, sgd_gender_score_cal = lf.train_calibrated_sgd(data.proteomic,gender_labels)
-sgd_msi_cal, sgd_msi_score_cal = lf.train_calibrated_sgd(data.proteomic,MSI_labels)
+# Probability estimates are not available for hinge loss in SGD. See learner_functions for a modified SGD trainer function.
+sgd_gender_mod, sgd_gender_score_mod = lf.train_sgd_mod(data.proteomic,gender_labels)
+sgd_msi_mod, sgd_msi_score_mod = lf.train_sgd_mod(data.proteomic,MSI_labels)
+
 
 print("\n\n******************************************************************")
 print("SOFT VOTE FOR GENDERS")
-gender_estimators = [('knn', knn_gender), ('lr', lr_gender), ('rf', rf_gender), ('sgd', sgd_gender_cal), ('mlp', mlp_gender)]
+gender_estimators = [('knn', knn_gender), ('lr', lr_gender), ('rf', rf_gender), ('sgd', sgd_gender_mod), ('mlp', mlp_gender)]
 sv_gender = sv.soft_vote(gender_estimators, data.proteomic, gender_labels)
 print("******************************************************************")
 
 print("\n\n******************************************************************")
 print("SOFT VOTE FOR MSI")
-msi_estimators = [('knn', knn_msi), ('lr', lr_msi), ('rf', rf_msi), ('sgd', sgd_msi_cal), ('mlp', mlp_msi)]
+msi_estimators = [('knn', knn_msi), ('lr', lr_msi), ('rf', rf_msi), ('sgd', sgd_msi_mod), ('mlp', mlp_msi)]
 sv_msi = sv.soft_vote(msi_estimators, data.proteomic, MSI_labels)
 print("******************************************************************")

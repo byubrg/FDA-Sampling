@@ -44,9 +44,8 @@ def train_knn(data,labels):
 def train_sgd(data, labels):
     return train_classifier(data,labels, SGDClassifier)
 
-def train_calibrated_sgd(data, labels):
-    sgd = SGDClassifier()
-    return train_classifier(data,labels, CalibratedClassifierCV, base_estimator=sgd, cv=5, method='sigmoid')
+def train_sgd_mod(data, labels):
+    return train_classifier(data,labels, SGDClassifier, loss='modified_huber')
 
 def train_nc(data,labels):
     return train_classifier(data,labels, NearestCentroid)
