@@ -146,7 +146,3 @@ outfile.close()
 
 # count is the total number of samples that are being labeled as mislabeled
 print(count)
-
-
-
-

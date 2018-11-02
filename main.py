@@ -49,6 +49,7 @@ rf_msi, rf_msi_score = lf.train_rf(
     **rf_params
 )
 
+print("sgd")
 sgd_gender, sgd_gender_score = lf.train_sgd(data.proteomic,gender_labels)
 sgd_msi, sgd_msi_score = lf.train_sgd(data.proteomic,MSI_labels)
 
