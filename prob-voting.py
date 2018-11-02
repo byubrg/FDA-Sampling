@@ -20,7 +20,8 @@ print('knn')
 knn_params = { # Found by parameter optimization in knn-optimization.py
     "n_neighbors": 11
 }
-#train learners for gender and msi here:
+
+# train learners for gender and msi here:
 knn_gender, knn_gender_score = lf.train_knn(protein_sub_set,gender_labels, **knn_params)
 knn_msi, knn_msi_score = lf.train_knn(protein_sub_set,MSI_labels, **knn_params)
 
@@ -66,13 +67,12 @@ print('mlp')#optimization has been hardcoded in
 mlp_gender, mlp_gender_score = lf.train_mlp(protein_sub_set,gender_labels)
 mlp_msi, mlp_msi_score = lf.train_mlp(protein_sub_set,MSI_labels)
 
-# print('SGD')
-# sgd_gender, sgd_gender_score = lf.train_sgd(protein_sub_set,gender_labels)
-# sgd_msi, sgd_msi_score = lf.train_sgd(protein_sub_set,MSI_labels)
+print('SGD')
+sgd_gender, sgd_gender_score = lf.train_sgd(protein_sub_set,gender_labels)
+sgd_msi, sgd_msi_score = lf.train_sgd(protein_sub_set,MSI_labels)
 
 modelArrayGen = [knn_gender, lr_gender, rf_gender, svm_gender, mlp_gender]
 modelArrayMSI = [knn_msi, lr_msi, rf_msi, svm_msi, mlp_msi]
-
 
 """
 give a group of trained models, test data and test labels
@@ -110,7 +110,7 @@ def prob_based_mismatches(models, data, labels):
     consensus = []
 
     # get the consensus of all the models
-    for i in range(0, len(results.index) - 1):
+    for i in range(0, len(results.index)):
         total = sum(results.iloc[i, :])
         # if the number that vote mismatched are greater than half the total votes
         if total > (float(len(results.columns)) / 2.0):
@@ -125,7 +125,6 @@ def prob_based_mismatches(models, data, labels):
 
 
 gender_mismatch_predictions = prob_based_mismatches(modelArrayGen,test_protein_sub_set,test_gender_labels)
-
 msi_mismatch_prediction = prob_based_mismatches(modelArrayMSI,test_protein_sub_set,test_MSI_labels)
 
 outfile = open('subchallenge_1.csv','w')
