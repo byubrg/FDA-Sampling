@@ -63,15 +63,15 @@ svm_gender, svm_gender_score = lf.train_svm(protein_sub_set,gender_labels,**svm_
 svm_msi, svm_msi_score = lf.train_svm(protein_sub_set,MSI_labels,**svm_param)
 
 print('mlp')#optimization has been hardcoded in
-mlp_gender, mlp_gender_score = lf.train_mlp(data.proteomic,gender_labels)
-mlp_msi, mlp_msi_score = lf.train_mlp(data.proteomic,MSI_labels)
+mlp_gender, mlp_gender_score = lf.train_mlp(protein_sub_set,gender_labels)
+mlp_msi, mlp_msi_score = lf.train_mlp(protein_sub_set,MSI_labels)
 
-print('SGD')
-sgd_gender, sgd_gender_score = lf.train_sgd(data.proteomic,gender_labels)
-sgd_msi, sgd_msi_score = lf.train_sgd(data.proteomic,MSI_labels)
+# print('SGD')
+# sgd_gender, sgd_gender_score = lf.train_sgd(protein_sub_set,gender_labels)
+# sgd_msi, sgd_msi_score = lf.train_sgd(protein_sub_set,MSI_labels)
 
-modelArrayGen = [knn_gender, lr_gender, rf_gender, svm_gender, mlp_gender, sgd_gender]
-modelArrayMSI = [knn_msi, lr_msi, rf_msi, svm_msi, mlp_msi, sgd_msi]
+modelArrayGen = [knn_gender, lr_gender, rf_gender, svm_gender, mlp_gender]
+modelArrayMSI = [knn_msi, lr_msi, rf_msi, svm_msi, mlp_msi]
 
 
 """
