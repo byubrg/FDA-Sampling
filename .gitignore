@@ -4,3 +4,4 @@ __pycache__
 eda.html
 .vscode
 *.pyc
+.idea/*
