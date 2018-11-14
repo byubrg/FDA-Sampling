@@ -29,4 +29,9 @@ if __name__ == "__main__":
     rna_x = pd.concat([data.rna, shuffled_rna])
     labels = [1.0] * 80 + [0.0] * 80
 
-    model.fit([prot_x, rna_x], [labels], epochs=10, batch_size=8)
+    model.fit([prot_x, rna_x], [labels], epochs=50, batch_size=2)
+
+    truth = pd.read_csv("./data/tidy/sum_tab_2.csv")
+    truth['Score'] = model.predict([data.proteomic, data.rna])
+
+    truth.to_csv("./data/tidy/output/siamese_scores.csv", index=False)
