@@ -1,6 +1,7 @@
 __pycache__
 *.Rproj
 .Rproj.user
+.Rhistory
 eda.html
 .vscode
 *.pyc
