@@ -14,7 +14,10 @@ class LoadData(object):
                  mismatch_path='data/tidy/sum_tab_1.csv',
                  test_proteomic_path='data/raw/test_pro.tsv',
                  test_clinical_path='data/raw/test_cli.tsv',
-                 test_rna_path='data/raw/test_rna.tsv'):
+                 train_rna_path='data/raw/train_rna.tsv',
+                 test_rna_path='data/raw/test_rna.tsv',
+                 mislabel_path='data/tidy/sum_tab_2.csv'):
+
         """Load the training data into pandas DataFrames.
 
         Keyword Arguments:
@@ -42,6 +45,24 @@ class LoadData(object):
             pd.read_csv(test_rna_path, index_col=0, sep='\t').T
         )
         self.test_clinical = pd.read_csv(test_clinical_path, index_col=0, sep='\t')
+        self.train_rna = pd.read_csv(train_rna_path, index_col=0, sep='\t').T
+        self.test_rna = pd.read_csv(test_rna_path, index_col=0, sep='\t').T
+        self.train_pro_rna = self.train_rna.merge(self.proteomic, how='outer', left_index=True, right_index=True)
+        self.test_pro_rna = self.test_rna.merge(self.test_proteomic, how='outer', left_index=True, right_index=True)
+        self.train_all = self.train_pro_rna.merge(self.clinical, how='outer', left_index=True, right_index=True)
+        self.train_all = self.train_all.replace(['Female', 'Male','MSI-Low/MSS', 'MSI-High'], [0, 1, 0, 1])
+        self.test_all = self.test_pro_rna.merge(self.test_clinical, how='outer', left_index=True, right_index=True)
+        self.test_all = self.test_all.replace(['Female', 'Male', 'MSI-Low/MSS', 'MSI-High'], [0, 1, 0, 1])
+        self.mislabel = pd.read_csv(mislabel_path, index_col=0)
+
+        # create training labels for if a sample has been mislabeled
+        self.mislabel_labels = []
+        for i in range(0, len(self.mislabel.index)):
+            if self.mislabel.iloc[i, 0] == self.mislabel.iloc[i, 1] and self.mislabel.iloc[i, 1] == self.mislabel.iloc[i, 2]:
+                self.mislabel_labels.append(0)
+            else:
+                self.mislabel_labels.append(1)
+
 
     def preprocess(self, df):
         return self.normalize(self.fix_data(df))
