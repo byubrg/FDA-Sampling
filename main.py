@@ -2,6 +2,7 @@ import learner_functions as lf
 import load_data as ld
 import feature_selection as fs
 import hard_vote as hv
+import find_mismatch as fm
 import soft_vote as sv
 
 data = ld.LoadData()
@@ -117,3 +118,6 @@ print("******************************************************************")
 # msi_estimators = [('knn', knn_msi), ('lr', lr_msi), ('rf', rf_msi), ('sgd', sgd_msi_mod), ('mlp', mlp_msi)]
 # sv_msi = sv.soft_vote(msi_estimators, data.proteomic, MSI_labels)
 # print("******************************************************************")
+
+mismatchTest = fm.find_all_mismatches(modelArrayGen, test_protein_sub_set)
+print(mismatchTest)
