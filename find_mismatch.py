@@ -1,27 +1,30 @@
+# this uses a hard-vote-esque method to determine the mismatch (adds up number of mismatches (1s)
+# then divides by number of models.  if less than 0.5, then it is not mismatch, and vice versa)
+
 import learner_functions as lf
 import load_data as ld
 
+data = ld.LoadData()
 
-def find_mismatch(model, data):
-
-    return model.predict_proba(data)
+mismatch_labels = data.mismatch['mismatch'].tolist()
 
 
-def find_all_mismatches(models, data):
+def find_mismatch_indices_hard(models, data, labels, type="default"):
 
-    probabilitiesOfModels = list()
+    predictionForEachModel = list()
     mismatchIndices = list()
 
     for model in models:
-        probabilitiesOfModels.append(find_mismatch(model, data))
+        predictionForEachModel.append(lf.make_test_prediction(model, data, labels, False))
 
-    for index in range(len(probabilitiesOfModels[0])):
-        probabilitySum = 0
-        for array in probabilitiesOfModels:
-            probabilitySum += array[index]
 
-        finalProbability = probabilitySum/len(probabilitiesOfModels)
-        if finalProbability < 0.5:
+    for index in range(len(predictionForEachModel[0])):
+        predictionSum = 0
+        for array in predictionForEachModel:
+            predictionSum += array[index]
+
+        finalPrediction = predictionSum / len(models)
+        if(finalPrediction > 0.5):
             mismatchIndices.append(index)
 
     return mismatchIndices
