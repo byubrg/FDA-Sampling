@@ -4,21 +4,29 @@ from time import time
 
 POPULATION_SIZE = 100
 N_FITTEST = 10
-N_GENERATIONS = 20
+N_GENERATIONS = 200
 N_MUTATIONS = 2
 
 pairwise_scores = pd.read_csv("data/tidy/output/pairwise_scores.csv", index_col=0)
+score_lookup = {}
+for i, row in pairwise_scores.iterrows():
+    rna = str(row["RNA"])
+    prot = str(row["Proteomic"])
+    prob = float(row["Probability"])
+    if rna not in score_lookup:
+        score_lookup[rna] = {}
+    score_lookup[rna][prot] = prob
 
 def sum_prob(truth, individual):
     tot = 0.0
     for p1, p2 in zip(truth, individual):
-        score1 = pairwise_scores[(pairwise_scores['RNA'] == p1) & (pairwise_scores['Proteomic'] == p2)]
-        score2 = pairwise_scores[(pairwise_scores['RNA'] == p2) & (pairwise_scores['Proteomic'] == p1)]
+        score1 = score_lookup[p1][p2]
+        score2 = score_lookup[p2][p1]
         if p1 == p2:
             # Add reward for matching the samples with their original labels
             # proportional to their siamese network outputs.
-            tot += float(score1["Probability"])
-        tot += float(score1["Probability"]) + float(score2["Probability"])
+            tot += score1
+        tot += score1 + score2
     return tot
 
 def cycle_crossover(seq1, seq2):
