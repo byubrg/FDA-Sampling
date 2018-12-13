@@ -51,21 +51,19 @@ if __name__ == "__main__":
     # probs.to_csv(path)
 
     # Get lowest 10% of self-matching
-    probs = pd.read_csv(path, index_col=0)
-    self_matches = probs[probs["Proteomic"] == probs["RNA"]]
-    bad_matches = self_matches.sort_values(by=["Probability"]).head(16)['RNA'].tolist()
-    for bad_match in bad_matches:
-        options = probs[(probs["Proteomic"] == bad_match) | (probs["RNA"] == bad_match)]
-        best_match = options.sort_values(by="Probability", ascending=False).head(1)
-        rna_match = best_match['RNA'].iloc[0]
-        pro_match = best_match['Proteomic'].iloc[0]
-        match = rna_match if rna_match != bad_match else pro_match
-        prob = best_match['Probability'].iloc[0]
-        adj_prob = prob - probs[(probs["RNA"] == match) & (probs["Proteomic"] == match)]['Probability'].iloc[0]
-        print(bad_match, match, adj_prob)
-
+    probs = collapse_comparisons()
+    probs['samples'] = probs.apply(lambda x: set([x[0], x[1]]), axis=1)
+    self_matches = probs[probs[0] == probs[1]]
+    bad_matches = self_matches.sort_values(["Probability"]).head(8)
+    def adjust_probability(row):
+        if row[0] == row[1]:
+            return row["Probability"]
+        prob_0_0 = probs[(probs[0] == row[0]) & (probs[1] == row[0])]['Probability'].iloc[0]
+        prob_1_1 = probs[(probs[0] == row[1]) & (probs[1] == row[1])]['Probability'].iloc[0]
+        return row["Probability"] - prob_0_0 - prob_1_1
+    probs['adj_prob'] = probs.apply(adjust_probability, axis=1)
+    print(probs[probs['adj_prob'] > 0])
 
     # For bottom 10%, find best matches
 
     # Output new matches: [[1,1], [2,3], [3,2], [4,4]]
-    pass
