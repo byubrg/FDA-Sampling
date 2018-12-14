@@ -28,12 +28,20 @@ lf.train_rf(data.train_all.fillna(0), data.mislabel_labels)
 # TESTING TO FIND MISMATCH INDICES
 # knn_rna, knn_rna_score = lf.train_knn(rna_sub_set, mismatch_labels, **knn_params)
 # knn_protein, knn_protein_score = lf.train_knn(protein_sub_set, mismatch_labels, **knn_params)
-
+#
+# lr_rna, lr_rna_score = lf.train_lr(rna_sub_set,mismatch_labels)
+# lr_msi, lr_msi_score = lf.train_lr(protein_sub_set,MSI_labels)
+#
 # lf.make_test_prediction(knn_rna, rna_sub_set, True)
-
-# modelArray = [knn_rna]
+#
+# modelArray = [knn_rna, lr_rna]
+# scoreList = [knn_rna_score, lr_rna_score]
 # print("MISMATCH INDICIES")
-# print(fm.find_mismatch_indices(modelArray, rna_sub_set, mismatch_labels))
+# mismatches = fm.find_mismatch_indices_hard(modelArray, rna_sub_set, mismatch_labels)
+# print(mismatches)
+# print("FJIOEWAIO;JJFJIO;EAWJIOFEWAJIO;J")
+# print("AJIPOEFWJIO;EAWJIFIJEAW;IOIJOFEWAJIOAWEIJFO;AWJEIO")
+# print(fm.find_mismatch_probabilities(mismatches, modelArray, scoreList, rna_sub_set, mismatch_labels))
 
 # END OF TESTING MISMATCH INDICES
 # ************************************
