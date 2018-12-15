@@ -34,6 +34,15 @@ def train_classifier(data, labels, classifier, **kwargs):
     return model.fit(data, labels), score
 
 
+def train_one_of_these(data, labels):
+    model = svm.SVC()
+    return model.fit(data, labels)
+
+
+def predict_one_of_these(model, data):
+    return model.predict(data)
+
+
 def train_rf(data, labels, **kwargs):
     return train_classifier(data, labels, RandomForestClassifier, **kwargs)
 
@@ -76,8 +85,8 @@ def train_bagging_knn(data,labels):
     print(scores)
 
 
-def train_svm(data, labels,**kwargs):
-   return train_classifier(data,labels, svm.SVC,**kwargs)
+def train_svm(data, labels, **kwargs):
+   return train_classifier(data, labels, svm.SVC, **kwargs)
 
 
 def make_test_prediction(model, data, labels, print_details=True):

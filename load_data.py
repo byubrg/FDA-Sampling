@@ -49,7 +49,7 @@ class LoadData(object):
         )
         self.train_proteomic = pd.read_csv(train_proteomic_path, index_col=0, sep='\t') #
         self.test_proteomic = pd.read_csv(test_proteomic_path, index_col=0, sep='\t') #
-        self.train_clinical = pd.read_csv(pd.read_csv(train_clinical_path, index_col=0, sep='\t')) #
+        self.train_clinical = pd.read_csv(train_clinical_path, index_col=0, sep='\t') #
         self.test_clinical = pd.read_csv(test_clinical_path, index_col=0, sep='\t')
         self.train_rna = pd.read_csv(train_rna_path, index_col=0, sep='\t').T
         self.test_rna = pd.read_csv(test_rna_path, index_col=0, sep='\t').T
