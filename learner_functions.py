@@ -35,6 +35,13 @@ def train_classifier(data, labels, classifier, **kwargs):
 
 
 def train_rf(data, labels, **kwargs):
+    if not kwargs:
+        kwargs = { # Found by parameter optimization in randomforest.py
+            "criterion": 'gini',
+            "min_samples_leaf": 1,
+            "min_samples_split": 5,
+            "n_estimators": 100
+        }
     return train_classifier(data, labels, RandomForestClassifier, **kwargs)
 
 

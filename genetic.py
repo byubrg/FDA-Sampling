@@ -2,10 +2,10 @@ import pandas as pd
 from random import sample, choice, randrange
 from time import time
 
-POPULATION_SIZE = 100
-N_FITTEST = 10
-N_GENERATIONS = 200
-N_MUTATIONS = 2
+POPULATION_SIZE = 1000
+N_FITTEST = 100
+N_GENERATIONS = 100
+N_MUTATIONS = 1
 
 pairwise_scores = pd.read_csv("data/tidy/output/pairwise_scores.csv", index_col=0)
 score_lookup = {}
@@ -25,7 +25,7 @@ def sum_prob(truth, individual):
         if p1 == p2:
             # Add reward for matching the samples with their original labels
             # proportional to their siamese network outputs.
-            tot += score1
+            tot += score1 * 0.1
         tot += score1 + score2
     return tot
 
