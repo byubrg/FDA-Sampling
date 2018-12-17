@@ -6,6 +6,7 @@ import soft_vote as sv
 
 data = ld.LoadData()
 
+
 #create test and train labels
 gender_labels = data.clinical['gender'].tolist()
 MSI_labels = data.clinical['msi'].tolist()
