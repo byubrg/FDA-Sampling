@@ -45,9 +45,11 @@ def clinical_probabilities(train=True, learner=learner_functions.train_rf):
             output += 1
         return output
 
-    train_labels = data.clinical.apply(clinical_to_int, axis="columns")
+    train_labels = pd.concat([data.clinical, data.test_clinical]).apply(clinical_to_int, axis="columns")
+    train_proteomic = pd.concat([data.proteomic, data.test_proteomic])
+    train_rna = pd.concat([data.rna, data.test_rna])
 
-    model = learner(data.proteomic, train_labels)
+    model = learner(train_proteomic, train_labels)
     if train:
         proteomic_probabilities_df = pd.DataFrame(model[0].predict_proba(data.proteomic))
         proteomic_probabilities_df['sample'] = data.clinical.index
@@ -56,7 +58,7 @@ def clinical_probabilities(train=True, learner=learner_functions.train_rf):
         proteomic_probabilities_df['sample'] = data.test_clinical.index
     proteomic_probabilities_df = proteomic_probabilities_df.set_index('sample')
 
-    model = learner(data.rna, train_labels)
+    model = learner(train_rna, train_labels)
     if train:
         rna_probabilities_df = pd.DataFrame(model[0].predict_proba(data.rna))
         rna_probabilities_df['sample'] = data.clinical.index
@@ -73,10 +75,12 @@ def rna_proteomic_mismatch_probabilities(train=True):
     pro_data = data.proteomic
     rna_data = data.rna
 
-    prot_x = pd.concat([pro_data, pro_data, pro_data])
+    prot_x = pd.concat([pro_data]*3 + [data.test_proteomic]*3)
     shuffled_rna = rna_data.sample(frac=1)
-    rna_x = pd.concat([rna_data, shuffled_rna, rna_data.sample(frac=1)])
-    labels = [1.0] * 80 + [0.0] * 160
+    rna_x = pd.concat([rna_data, shuffled_rna, rna_data.sample(frac=1),
+        data.test_rna, data.test_rna.sample(frac=1), data.test_rna.sample(frac=1)
+    ])
+    labels = [1.0] * 80 + [0.0] * 160 + [1.0] * 80 + [0.0] * 160
 
     network = SiameseNet([
         (pro_data.shape[-1],),
