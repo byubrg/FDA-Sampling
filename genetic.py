@@ -4,9 +4,10 @@ from probabilities import clinical_labels_dict
 
 POPULATION_SIZE = 1000
 N_FITTEST = 100
-N_GENERATIONS = 1000
+N_GENERATIONS = 500
 N_MUTATIONS = 1
 TEST_OR_TRAIN = "train"
+MATCHING_BONUS = 1.1
 
 class Individual(object):
     def __init__(self, clinical=None, proteomic=None, rna=None):
@@ -72,7 +73,7 @@ class Genetic(object):
         rna = cycle_crossover(parent1.rna, parent2.rna)
         return Individual(clinical=clinical, proteomic=proteomic, rna=rna)
 
-    def fitness(self, individual, matching_bonus=1.1):
+    def fitness(self, individual, matching_bonus=MATCHING_BONUS):
         score = 0.0
         for clin, prot, rna in zip(individual.clinical, individual.proteomic, individual.rna):
             prot_clin_label = int(self.clin[prot])
@@ -115,7 +116,10 @@ class Genetic(object):
         self.population = [self.mutate(individual) for individual in offspring]
 
     def train(self):
-        self.best_score = 0.0
+        self.best_genes = Individual(
+            mutate(self.patients, 2), mutate(self.patients, 2), mutate(self.patients, 2)
+        )
+        self.best_score = self.fitness(self.best_genes)
         for generation in range(N_GENERATIONS):
                 # Train without mutations for the last 5% of generations.
             if generation > N_GENERATIONS * 0.95:
@@ -159,9 +163,9 @@ def cycle_crossover(parent1, parent2):
             parent = parent1
     return child
 
-def mutate(seq):
+def mutate(seq, n_mutations=N_MUTATIONS):
     seq = seq[:]
-    for _ in range(N_MUTATIONS):
+    for _ in range(n_mutations):
         loc1 = randrange(len(seq))
         loc2 = randrange(len(seq))
         seq[loc1], seq[loc2] = seq[loc2], seq[loc1]
