@@ -70,8 +70,8 @@ class LoadData(object):
     def select_features(self):
         self.rna = univariate(self.rna, self.clinical)
         self.proteomic = univariate(self.proteomic, self.clinical)
-        self.test_rna = univariate(self.test_rna, self.clinical)
-        self.test_proteomic = univariate(self.test_proteomic, self.clinical)
+        self.test_rna = self.test_rna[self.rna.columns]
+        self.test_proteomic = self.test_proteomic[self.proteomic.columns]
 
     def preprocess(self, df):
         return self.normalize(self.fix_data(df))

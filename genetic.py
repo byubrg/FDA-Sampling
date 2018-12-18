@@ -6,6 +6,7 @@ POPULATION_SIZE = 1000
 N_FITTEST = 100
 N_GENERATIONS = 100
 N_MUTATIONS = 1
+TEST_OR_TRAIN = "train"
 
 class Individual(object):
     def __init__(self, clinical=None, proteomic=None, rna=None):
@@ -27,8 +28,16 @@ class Individual(object):
         return Individual(mutate(self.clinical), mutate(self.proteomic), mutate(self.rna))
 
 class Genetic(object):
-    def __init__(self):
-        rna_prot_df = pd.read_csv("./data/probabilities/rna_proteomic.csv", index_col=0)
+    def __init__(self, train=True):
+        if train:
+            rna_prot_df = pd.read_csv("./data/probabilities/rna_proteomic.csv", index_col=0)
+            rna_clin_df = pd.read_csv("./data/probabilities/clinical_rna.csv", index_col=0)
+            prot_clin_df = pd.read_csv("./data/probabilities/clinical_proteomic.csv", index_col=0)
+        else:
+            rna_prot_df = pd.read_csv("./data/probabilities/rna_proteomic_test.csv", index_col=0)
+            rna_clin_df = pd.read_csv("./data/probabilities/clinical_rna_test.csv", index_col=0)
+            prot_clin_df = pd.read_csv("./data/probabilities/clinical_proteomic_test.csv", index_col=0)
+
         self.rna_prot = {}
         for i, row in rna_prot_df.iterrows():
             for prot, prob in row.iteritems():
@@ -36,16 +45,14 @@ class Genetic(object):
                 if rna not in self.rna_prot:
                     self.rna_prot[rna] = {}
                 self.rna_prot[rna][prot] = prob
-        rna_clin_df = pd.read_csv("./data/probabilities/clinical_rna.csv", index_col=0)
         self.rna_clin = {}
         for i, row in rna_clin_df.iterrows():
             self.rna_clin[row.name] = row.tolist()
-        prot_clin_df = pd.read_csv("./data/probabilities/clinical_proteomic.csv", index_col=0)
         self.prot_clin = {}
         for i, row in prot_clin_df.iterrows():
             self.prot_clin[row.name] = row.tolist()
         self.patients = prot_clin_df.index.tolist()
-        self.clin = clinical_labels_dict()
+        self.clin = clinical_labels_dict(train=train)
         self.initialize_population()
 
     def mutate(self, individual):
@@ -80,33 +87,33 @@ class Genetic(object):
             ]) for _ in range(POPULATION_SIZE)
         ]
 
+    def generation(self):
+        # Calc scores
+        scores = [self.fitness(individual) for individual in self.population]
+        # Select best individuals
+        df = pd.DataFrame({"genes": self.population, "score": scores})
+        fittest_df = df.sort_values(["score"]).tail(N_FITTEST)
+        fittest = fittest_df['genes'].tolist()
+         # Give the best individual we've seen extra reproductive chances.
+        if fittest_df['score'].tolist()[-1] > self.best_score:
+            self.best_score = fittest_df['score'].tolist()[-1]
+            self.best_genes = fittest[-1]
+        fittest.append(self.best_genes)
+        # Cross over best individuals
+        offspring = [
+            self.crossover(choice(fittest), choice(fittest)) for _ in range(POPULATION_SIZE)
+        ]
+        # Introduce random variation
+        self.population = [self.mutate(individual) for individual in offspring]
+
     def train(self):
-        best_score = 0.0
+        self.best_score = 0.0
         for generation in range(N_GENERATIONS):
+                # Train without mutations for the last 5% of generations.
             if generation > N_GENERATIONS * 0.95:
-                # Train without mutations for the last 5 of generations.%.
                 N_MUTATIONS = 0
-            # Calc scores
-            scores = [self.fitness(individual) for individual in self.population]
-
-            # Select best individuals
-            df = pd.DataFrame({"genes": self.population, "score": scores})
-            fittest_df = df.sort_values(["score"]).tail(N_FITTEST)
-
-            print("Generation {}. Best score: {}".format(generation, fittest_df['score'].tolist()[-1]))
-
-            fittest = fittest_df['genes'].tolist()
-            if fittest_df['score'].tolist()[-1] > best_score:
-                self.best_genes = fittest[-1]
-            fittest.append(self.best_genes)
-
-            # Cross over best individuals
-            offspring = [self.crossover(choice(fittest), choice(fittest)) for _ in range(POPULATION_SIZE)]
-
-            # Introduce random variation
-            self.population = [self.mutate(individual) for individual in offspring]
-
-pairwise_scores = pd.read_csv("data/tidy/output/pairwise_scores.csv", index_col=0)
+            self.generation()
+            print("Generation {}. Best score: {}".format(generation, self.best_score))
 
 def cycle_crossover(parent1, parent2):
     """Cycle crossover technique for maintaining position-based genes.
@@ -153,8 +160,12 @@ def mutate(seq):
     return seq
 
 if __name__ == "__main__":
-    # Generate initial population
-    genetic = Genetic()
+    if TEST_OR_TRAIN.lower() == "test":
+        train = False
+    else:
+        train = True
+
+    genetic = Genetic(train=train)
     no_mismatches = Individual(genetic.patients, genetic.patients, genetic.patients)
     print("Score to beat: {}".format(genetic.fitness(no_mismatches)))
 

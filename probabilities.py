@@ -10,7 +10,7 @@ CLINICAL_VALUES = {
     ("Male",   "MSI-High"):    3,
 }
 
-def clinical_labels_dict():
+def clinical_labels_dict(train=True):
     data = LoadData()
 
     def clinical_to_int(row):
@@ -21,10 +21,15 @@ def clinical_labels_dict():
             output += 1
         return output
 
-    labels = data.clinical.apply(clinical_to_int, axis="columns")
-    return {sample: label for sample, label in zip(data.clinical.index, labels)}
+    if train:
+        clin_data = data.clinical
+    else:
+        clin_data = data.test_clinical
 
-def clinical_probabilities(learner=learner_functions.train_rf):
+    labels = clin_data.apply(clinical_to_int, axis="columns")
+    return {sample: label for sample, label in zip(clin_data.index, labels)}
+
+def clinical_probabilities(train=True, learner=learner_functions.train_rf):
     """Get the probabilities of each clinical class for each sample for
     proteomic and rna data.
 
@@ -40,21 +45,29 @@ def clinical_probabilities(learner=learner_functions.train_rf):
             output += 1
         return output
 
-    labels = data.clinical.apply(clinical_to_int, axis="columns")
+    train_labels = data.clinical.apply(clinical_to_int, axis="columns")
 
-    model = learner(data.proteomic, labels)
-    proteomic_probabilities_df = pd.DataFrame(model[0].predict_proba(data.proteomic))
-    proteomic_probabilities_df['sample'] = data.clinical.index
+    model = learner(data.proteomic, train_labels)
+    if train:
+        proteomic_probabilities_df = pd.DataFrame(model[0].predict_proba(data.proteomic))
+        proteomic_probabilities_df['sample'] = data.clinical.index
+    else:
+        proteomic_probabilities_df = pd.DataFrame(model[0].predict_proba(data.test_proteomic))
+        proteomic_probabilities_df['sample'] = data.test_clinical.index
     proteomic_probabilities_df = proteomic_probabilities_df.set_index('sample')
 
-    model = learner(data.rna, labels)
-    rna_probabilities_df = pd.DataFrame(model[0].predict_proba(data.rna))
-    rna_probabilities_df['sample'] = data.clinical.index
+    model = learner(data.rna, train_labels)
+    if train:
+        rna_probabilities_df = pd.DataFrame(model[0].predict_proba(data.rna))
+        rna_probabilities_df['sample'] = data.clinical.index
+    else:
+        rna_probabilities_df = pd.DataFrame(model[0].predict_proba(data.test_rna))
+        rna_probabilities_df['sample'] = data.test_clinical.index
     rna_probabilities_df = rna_probabilities_df.set_index('sample')
 
     return proteomic_probabilities_df, rna_probabilities_df
 
-def rna_proteomic_mismatch_probabilities():
+def rna_proteomic_mismatch_probabilities(train=True):
     # Train siamese network
     data = LoadData()
     pro_data = data.proteomic
@@ -72,6 +85,10 @@ def rna_proteomic_mismatch_probabilities():
     network.fit([prot_x, rna_x], labels, epochs=100, batch_size=5, verbose=False)
 
     # Calculate pairwise probabilities
+    if not train:
+        pro_data = data.test_proteomic
+        rna_data = data.test_rna
+
     vals = {
         "Proteomic": [],
         "RNA": [],
@@ -84,7 +101,10 @@ def rna_proteomic_mismatch_probabilities():
             vals['Probability'].append(network.predict([[x], [y]])[0][0])
 
     probs = pd.DataFrame(vals)
-    order = data.clinical.index.tolist()
+    if train:
+        order = data.clinical.index.tolist()
+    else:
+        order = data.test_clinical.index.tolist()
     probs = probs.pivot(index='RNA', columns='Proteomic', values='Probability')[order].reindex(order)
     return probs
 
@@ -94,3 +114,9 @@ if __name__ == "__main__":
     prot_clinical.to_csv("./data/probabilities/clinical_proteomic.csv")
     rna_clinical.to_csv("./data/probabilities/clinical_rna.csv")
     rna_prot.to_csv("./data/probabilities/rna_proteomic.csv")
+
+    prot_clinical_test, rna_clinical_test = clinical_probabilities(train=False)
+    rna_prot_test = rna_proteomic_mismatch_probabilities(train=False)
+    prot_clinical_test.to_csv("./data/probabilities/clinical_proteomic_test.csv")
+    rna_clinical_test.to_csv("./data/probabilities/clinical_rna_test.csv")
+    rna_prot_test.to_csv("./data/probabilities/rna_proteomic_test.csv")
