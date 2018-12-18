@@ -4,7 +4,7 @@ from probabilities import clinical_labels_dict
 
 POPULATION_SIZE = 1000
 N_FITTEST = 100
-N_GENERATIONS = 100
+N_GENERATIONS = 1000
 N_MUTATIONS = 1
 TEST_OR_TRAIN = "train"
 
@@ -18,11 +18,19 @@ class Individual(object):
         return Individual(self.clinical[:], self.proteomic[:], self.rna[:])
 
     def dataframe(self):
-        return pd.DataFrame({
-            "clinical": self.clinical,
-            "proteomic": self.proteomic,
-            "rna": self.rna
-        }).sort_values("clinical").reset_index(drop=True)
+        df = pd.DataFrame({
+            "Clinical": self.clinical,
+            "RNAseq": self.rna,
+            "Proteomics": self.proteomic
+        }, index=self.clinical)
+
+        df.index = df.index.rename("sample")
+        df = df[['Clinical', 'RNAseq', 'Proteomics']]
+        order = [df.index[0].split("_")[0] + "_{}".format(i) for i in range(1, len(df.index)+1)]
+        df = df.reindex(order)
+        df = df.applymap(lambda cell: cell.split("_")[-1])
+
+        return df
 
     def mutate(self):
         return Individual(mutate(self.clinical), mutate(self.proteomic), mutate(self.rna))
@@ -160,16 +168,26 @@ def mutate(seq):
     return seq
 
 if __name__ == "__main__":
-    if TEST_OR_TRAIN.lower() == "test":
-        train = False
-    else:
-        train = True
-
-    genetic = Genetic(train=train)
+    genetic = Genetic(train=True)
     no_mismatches = Individual(genetic.patients, genetic.patients, genetic.patients)
-    print("Score to beat: {}".format(genetic.fitness(no_mismatches)))
+    print("Scores for training set. Score to beat: {}".format(genetic.fitness(no_mismatches)))
 
     genetic.train()
 
     print("Best arrangement found:")
-    print(genetic.best_genes.dataframe())
+    df = genetic.best_genes.dataframe()
+    print(df)
+    df.to_csv("./data/tidy/output/siamese_submission_train.csv")
+
+    print()
+
+    genetic_test = Genetic(train=False)
+    no_mismatches = Individual(genetic_test.patients, genetic_test.patients, genetic_test.patients)
+    print("Scores for test set. Score to beat: {}".format(genetic_test.fitness(no_mismatches)))
+
+    genetic_test.train()
+
+    print("Best arrangement found:")
+    df = genetic_test.best_genes.dataframe()
+    print(df)
+    df.to_csv("./data/tidy/output/siamese_submission_test.csv")
