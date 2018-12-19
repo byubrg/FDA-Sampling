@@ -84,7 +84,8 @@ def train_bagging_knn(data,labels):
 
 
 def train_svm(data, labels,**kwargs):
-   return train_classifier(data,labels, svm.SVC,**kwargs)
+    kwargs = {'probability':True}
+    return train_classifier(data,labels, svm.SVC,**kwargs)
 
 
 def make_test_prediction(model, data, labels, print_details=True):
