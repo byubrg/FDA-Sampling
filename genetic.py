@@ -171,6 +171,24 @@ def mutate(seq, n_mutations=N_MUTATIONS):
         seq[loc1], seq[loc2] = seq[loc2], seq[loc1]
     return seq
 
+def most_common(lst):
+    return max(set(lst), key=lst.count)
+
+def reorder_sample_ids(df):
+    print('Hello Mundo')
+    #take df loop over each row
+    for i in range(0,len(df.index)):
+        most_common_index = int(most_common([df.iloc[i, 0], df.iloc[i, 1], df.iloc[i, 2]]))
+        current_index = i + 1
+        if most_common_index is not current_index:
+            # switch content of the two indices
+            # using -1 because samples ids are 1 based but python is 0 based
+            temp_values = df.iloc[(most_common_index-1),:].copy()
+            df.iloc[(most_common_index-1),:] = df.iloc[i,:].copy()
+            df.iloc[i, :] = temp_values
+    return df
+
+
 if __name__ == "__main__":
     genetic = Genetic(train=True)
     no_mismatches = Individual(genetic.patients, genetic.patients, genetic.patients)
@@ -193,5 +211,7 @@ if __name__ == "__main__":
 
     print("Best arrangement found:")
     df = genetic_test.best_genes.dataframe()
+    print(df)
+    reorder_sample_ids(df)
     print(df)
     df.to_csv("./data/tidy/output/siamese_submission_test.csv")
