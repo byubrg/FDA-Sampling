@@ -3,7 +3,7 @@ Explore scikitlearn's feature selection capabilities.
 """
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_selection import VarianceThreshold, SelectKBest, f_classif, SelectFdr, SelectFpr, RFECV, RFE
-from load_data import LoadData
+# from load_data import LoadData
 import pandas as pd
 
 def _select_features(df, selector=VarianceThreshold, **kwargs):
@@ -46,5 +46,6 @@ def _supported_cols(features, selected):
     return features[features.columns[selected.get_support(indices=True)]]
 
 if __name__ == "__main__":
-    data = LoadData()
-    print(elimination(data.proteomic, data.clinical, RandomForestClassifier()))
+    pass
+    # data = LoadData()
+    # print(elimination(data.proteomic, data.clinical, RandomForestClassifier()))

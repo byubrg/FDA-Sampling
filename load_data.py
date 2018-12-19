@@ -3,11 +3,13 @@ Load training data into dataframes.
 """
 
 import pandas as pd
+from feature_selection import univariate
 
 class LoadData(object):
     """A class to load and hold the training data.
     """
     def __init__(self,
+                 feature_selection=True,
                  clinical_path='data/tidy/train_cli.csv',
                  proteomic_path='data/tidy/train_pro.csv',
                  rna_path='data/tidy/train_rna.csv',
@@ -46,7 +48,6 @@ class LoadData(object):
         )
         self.test_clinical = pd.read_csv(test_clinical_path, index_col=0, sep='\t')
         self.train_rna = pd.read_csv(train_rna_path, index_col=0, sep='\t').T
-        self.test_rna = pd.read_csv(test_rna_path, index_col=0, sep='\t').T
         self.train_pro_rna = self.train_rna.merge(self.proteomic, how='outer', left_index=True, right_index=True)
         self.test_pro_rna = self.test_rna.merge(self.test_proteomic, how='outer', left_index=True, right_index=True)
         self.train_all = self.train_pro_rna.merge(self.clinical, how='outer', left_index=True, right_index=True)
@@ -54,6 +55,9 @@ class LoadData(object):
         self.test_all = self.test_pro_rna.merge(self.test_clinical, how='outer', left_index=True, right_index=True)
         self.test_all = self.test_all.replace(['Female', 'Male', 'MSI-Low/MSS', 'MSI-High'], [0, 1, 0, 1])
         self.mislabel = pd.read_csv(mislabel_path, index_col=0)
+
+        if feature_selection:
+            self.select_features()
 
         # create training labels for if a sample has been mislabeled
         self.mislabel_labels = []
@@ -63,6 +67,11 @@ class LoadData(object):
             else:
                 self.mislabel_labels.append(1)
 
+    def select_features(self):
+        self.rna = univariate(self.rna, self.clinical)
+        self.proteomic = univariate(self.proteomic, self.clinical)
+        self.test_rna = self.test_rna[self.rna.columns]
+        self.test_proteomic = self.test_proteomic[self.proteomic.columns]
 
     def preprocess(self, df):
         return self.normalize(self.fix_data(df))
